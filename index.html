@@ -4,37 +4,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Object Detection System</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<title>VisionAI - Object Detection</title>
 
 <style>
+:root {
+    --bg: #08111f;
+    --panel: #111e31;
+    --panel2: #1a2a40;
+    --line: #2b405c;
+    --blue: #38bdf8;
+    --green: #4ade80;
+    --muted: #9aacc2;
+}
+
 * {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
 }
 
 body {
-    background: #0b1120;
+    margin: 0;
+    background: var(--bg);
     color: white;
+    font-family: Arial, sans-serif;
     min-height: 100vh;
 }
 
 header {
-    padding: 22px 7%;
-    background: #111c30;
+    padding: 18px 5%;
+    background: #101c2e;
+    border-bottom: 1px solid var(--line);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #25344d;
 }
 
-header h1 {
+.brand {
     font-size: 24px;
-    color: #38bdf8;
+    font-weight: bold;
+    color: var(--blue);
 }
 
 .status {
@@ -42,189 +49,203 @@ header h1 {
     font-size: 13px;
 }
 
-.container {
-    max-width: 1200px;
-    padding: 35px 20px;
+main {
+    max-width: 1250px;
     margin: auto;
+    padding: 35px 20px;
 }
 
-.heading {
+.intro {
     text-align: center;
     margin-bottom: 30px;
 }
 
-.heading h2 {
-    font-size: 32px;
-    margin-bottom: 10px;
+.intro h1 {
+    font-size: 34px;
 }
 
-.heading p {
-    color: #94a3b8;
+.intro p {
+    color: var(--muted);
 }
 
-.dashboard {
+.layout {
     display: grid;
     grid-template-columns: 2fr 1fr;
-    gap: 22px;
+    gap: 20px;
 }
 
 .card {
-    background: #111c30;
-    border: 1px solid #25344d;
-    border-radius: 14px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 15px;
     padding: 20px;
 }
 
-.card h3 {
-    margin-bottom: 17px;
-    color: #38bdf8;
+h2 {
+    color: var(--blue);
+    font-size: 19px;
+    margin-bottom: 18px;
 }
 
-.screen {
+.stage {
     position: relative;
-    width: 100%;
     background: #020617;
     border-radius: 10px;
+    min-height: 320px;
     overflow: hidden;
-    min-height: 300px;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 }
 
-video, #uploadedImage {
-    width: 100%;
+#video, #photo {
     display: none;
+    width: 100%;
     height: auto;
+    max-height: 68vh;
+    object-fit: contain;
 }
 
-canvas {
+#overlay {
     position: absolute;
-    width: 100%;
-    height: 100%;
     top: 0;
     left: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
 }
 
 .placeholder {
-    color: #64748b;
+    color: var(--muted);
     text-align: center;
-    padding: 40px 10px;
+    padding: 40px 15px;
+}
+
+.camera {
+    font-size: 45px;
 }
 
 .controls {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 18px;
+    margin-top: 17px;
 }
 
-button, .upload-label {
+button, .upload {
     border: none;
-    border-radius: 7px;
-    padding: 12px 17px;
-    cursor: pointer;
-    font-weight: bold;
+    border-radius: 8px;
+    padding: 12px 16px;
     background: #0284c7;
     color: white;
-    transition: .2s;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-button:hover, .upload-label:hover {
-    background: #0369a1;
+button:hover, .upload:hover {
+    filter: brightness(1.2);
+}
+
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
 }
 
 .stop {
-    background: #dc2626;
-}
-
-.stop:hover {
     background: #b91c1c;
 }
 
-.upload-label {
-    display: inline-block;
+.secondary {
     background: #475569;
+}
+
+.upload {
+    display: inline-flex;
+    align-items: center;
 }
 
 input[type="file"] {
     display: none;
 }
 
-.info {
+.note {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 15px;
+}
+
+#message {
+    color: #facc15;
+    font-size: 13px;
+    margin-top: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 22px;
 }
 
 .stat {
-    background: #1e293b;
-    padding: 16px;
-    border-radius: 9px;
+    background: var(--panel2);
+    padding: 15px;
+    border-radius: 10px;
 }
 
 .stat span {
     display: block;
-    color: #94a3b8;
+    color: var(--muted);
     font-size: 12px;
     margin-bottom: 8px;
 }
 
 .stat strong {
-    font-size: 25px;
-    color: #38bdf8;
+    font-size: 27px;
+    color: var(--blue);
 }
 
 #results {
-    max-height: 380px;
-    overflow-y: auto;
+    max-height: 420px;
+    overflow: auto;
 }
 
 .result {
-    background: #1e293b;
-    border-radius: 8px;
-    padding: 13px;
-    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
-    gap: 8px;
+    background: var(--panel2);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 9px;
 }
 
 .result span {
-    color: #4ade80;
+    color: var(--green);
+    font-weight: bold;
 }
 
 .empty {
-    color: #64748b;
+    color: var(--muted);
     text-align: center;
-    padding: 25px 5px;
-}
-
-#modelStatus {
-    color: #facc15;
-    font-size: 13px;
-    margin-top: 12px;
+    padding: 22px;
 }
 
 footer {
     text-align: center;
-    color: #64748b;
+    color: #71839a;
     padding: 25px;
 }
 
-@media(max-width: 800px) {
-    .dashboard {
+@media(max-width:850px) {
+    .layout {
         grid-template-columns: 1fr;
     }
 
-    header {
-        padding: 18px;
-    }
-
-    .heading h2 {
-        font-size: 25px;
+    .stage {
+        min-height: 240px;
     }
 }
 </style>
@@ -233,56 +254,83 @@ footer {
 <body>
 
 <header>
-    <h1>⚡ VisionAI</h1>
-    <div class="status" id="headerStatus">● Loading AI...</div>
+    <div class="brand">⚡ VisionAI</div>
+    <div class="status" id="systemStatus">
+        ● Loading AI Model...
+    </div>
 </header>
 
-<div class="container">
+<main>
 
-    <div class="heading">
-        <h2>AI Object Detection</h2>
-        <p>Detect and recognize objects in real time using artificial intelligence.</p>
-    </div>
+    <section class="intro">
+        <h1>AI Object Detection</h1>
+        <p>Detect real-world objects using Artificial Intelligence.</p>
+    </section>
 
-    <div class="dashboard">
+    <div class="layout">
 
-        <div class="card">
-            <h3>📷 Detection Screen</h3>
+        <section class="card">
 
-            <div class="screen" id="screen">
+            <h2>📷 Detection Screen</h2>
+
+            <div class="stage" id="stage">
 
                 <div class="placeholder" id="placeholder">
-                    <h2>📸</h2>
+                    <div class="camera">📸</div>
                     <p>Start your camera or upload an image</p>
                 </div>
 
-                <video id="video" autoplay playsinline muted></video>
+                <video id="video" autoplay muted playsinline></video>
 
-                <img id="uploadedImage" alt="Uploaded image">
+                <img id="photo" alt="Uploaded image">
 
-                <canvas id="canvas"></canvas>
+                <canvas id="overlay"></canvas>
 
             </div>
 
             <div class="controls">
-                <button onclick="startCamera()">▶ Start Camera</button>
-                <button class="stop" onclick="stopCamera()">■ Stop Camera</button>
 
-                <label class="upload-label" for="fileInput">
+                <button id="startBtn" disabled>
+                    ▶ Start Camera
+                </button>
+
+                <button id="stopBtn" class="stop" disabled>
+                    ■ Stop Camera
+                </button>
+
+                <label class="upload" for="fileInput">
                     📁 Upload Image
                 </label>
 
-                <input type="file" id="fileInput" accept="image/*">
+                <input
+                    id="fileInput"
+                    type="file"
+                    accept="image/*"
+                >
+
+                <button id="clearBtn" class="secondary">
+                    Clear
+                </button>
+
             </div>
 
-            <p id="modelStatus">Initializing AI model...</p>
-        </div>
+            <p class="note">
+                Camera requires HTTPS or localhost.
+                Allow camera permission in your browser settings.
+            </p>
 
-        <div class="card">
+            <div id="message">
+                Loading TensorFlow.js and AI model...
+            </div>
 
-            <h3>📊 Detection Statistics</h3>
+        </section>
 
-            <div class="info">
+        <aside class="card">
+
+            <h2>📊 Detection Statistics</h2>
+
+            <div class="stats">
+
                 <div class="stat">
                     <span>Objects Found</span>
                     <strong id="objectCount">0</strong>
@@ -292,291 +340,666 @@ footer {
                     <span>Unique Objects</span>
                     <strong id="uniqueCount">0</strong>
                 </div>
+
             </div>
 
-            <h3>🎯 Detected Objects</h3>
+            <h2>🎯 Detected Objects</h2>
 
             <div id="results">
-                <div class="empty">No objects detected yet.</div>
+                <div class="empty">
+                    No objects detected yet.
+                </div>
             </div>
 
-        </div>
+        </aside>
 
     </div>
 
-</div>
+</main>
 
 <footer>
-    AI Object Detection System | Powered by TensorFlow.js
+    VisionAI | AI Object Detection System
+    <br><br>
+    Powered by TensorFlow.js and COCO-SSD
 </footer>
 
 <script>
 
-const video = document.getElementById("video");
-const image = document.getElementById("uploadedImage");
-const canvas = document.getElementById("canvas");
+(() => {
+
+const $ = id => document.getElementById(id);
+
+const video = $("video");
+const photo = $("photo");
+const canvas = $("overlay");
 const ctx = canvas.getContext("2d");
 
-const placeholder = document.getElementById("placeholder");
-const results = document.getElementById("results");
+const message = $("message");
+const systemStatus = $("systemStatus");
 
 let model = null;
 let stream = null;
-let animationId = null;
-let detecting = false;
+let running = false;
+let busy = false;
+let raf = 0;
+let sourceType = "none";
+let lastPredictions = [];
 
-const modelStatus = document.getElementById("modelStatus");
-const headerStatus = document.getElementById("headerStatus");
+function setMessage(text, error = false) {
+    message.textContent = text;
+    message.style.color = error ? "#fca5a5" : "#facc15";
+}
 
-// Load AI model
-async function loadModel() {
-    try {
-        modelStatus.innerText = "Loading COCO-SSD model...";
+function resetStats() {
 
-        await tf.ready();
-        model = await cocoSsd.load();
+    $("objectCount").textContent = 0;
+    $("uniqueCount").textContent = 0;
 
-        modelStatus.innerText = "✓ AI Model Loaded Successfully";
-        headerStatus.innerText = "● AI System Online";
-        headerStatus.style.color = "#4ade80";
+    $("results").innerHTML =
+        '<div class="empty">No objects detected yet.</div>';
 
-    } catch (error) {
-        modelStatus.innerText = "Error loading AI model: " + error.message;
-        headerStatus.innerText = "● Model Error";
-        console.error(error);
+    lastPredictions = [];
+}
+
+function fitCanvas() {
+
+    const rect = $("stage").getBoundingClientRect();
+
+    const w = sourceType === "camera"
+        ? video.videoWidth
+        : photo.naturalWidth;
+
+    const h = sourceType === "camera"
+        ? video.videoHeight
+        : photo.naturalHeight;
+
+    if (!w || !h) return null;
+
+    const scale = Math.min(
+        rect.width / w,
+        rect.height / h
+    );
+
+    const drawW = w * scale;
+    const drawH = h * scale;
+
+    canvas.width = Math.round(rect.width * devicePixelRatio);
+    canvas.height = Math.round(rect.height * devicePixelRatio);
+
+    return {
+        scale,
+        offsetX: (rect.width - drawW) / 2,
+        offsetY: (rect.height - drawH) / 2
+    };
+}
+
+function draw(predictions) {
+
+    const layout = fitCanvas();
+
+    if (!layout) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    ctx.save();
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+
+    const colors = [
+        "#22c55e",
+        "#38bdf8",
+        "#facc15",
+        "#fb7185",
+        "#c084fc"
+    ];
+
+    const visible = predictions.filter(
+        p => p.score >= 0.45
+    );
+
+    visible.forEach((p, i) => {
+
+        const [x, y, w, h] = p.bbox;
+
+        const color = colors[i % colors.length];
+
+        const dx = layout.offsetX + x * layout.scale;
+        const dy = layout.offsetY + y * layout.scale;
+
+        const dw = w * layout.scale;
+        const dh = h * layout.scale;
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 3;
+
+        ctx.strokeRect(dx, dy, dw, dh);
+
+        const label =
+            p.class + " " +
+            (p.score * 100).toFixed(1) + "%";
+
+        ctx.font = "bold 14px Arial";
+
+        const textWidth = ctx.measureText(label).width;
+
+        const labelY = Math.max(0, dy - 25);
+
+        ctx.fillStyle = color;
+
+        ctx.fillRect(
+            dx,
+            labelY,
+            textWidth + 12,
+            23
+        );
+
+        ctx.fillStyle = "#06111f";
+
+        ctx.fillText(
+            label,
+            dx + 6,
+            labelY + 16
+        );
+
+    });
+
+    ctx.restore();
+
+    updateResults(visible);
+}
+
+function updateResults(items) {
+
+    $("objectCount").textContent = items.length;
+
+    const unique = new Set(
+        items.map(item => item.class)
+    );
+
+    $("uniqueCount").textContent = unique.size;
+
+    if (items.length === 0) {
+
+        $("results").innerHTML =
+            '<div class="empty">No objects detected.</div>';
+
+        return;
+    }
+
+    $("results").innerHTML = "";
+
+    items.forEach(item => {
+
+        const row = document.createElement("div");
+        row.className = "result";
+
+        const name = document.createElement("strong");
+        name.textContent = item.class;
+
+        const confidence = document.createElement("span");
+
+        confidence.textContent =
+            (item.score * 100).toFixed(1) + "%";
+
+        row.append(name, confidence);
+
+        $("results").appendChild(row);
+
+    });
+}
+
+// Stop webcam
+
+async function stopCamera(keepMessage = false) {
+
+    running = false;
+    busy = false;
+
+    if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+    }
+
+    if (stream) {
+
+        stream.getTracks().forEach(track => {
+            track.stop();
+        });
+
+        stream = null;
+    }
+
+    video.pause();
+    video.srcObject = null;
+    video.style.display = "none";
+
+    $("stopBtn").disabled = true;
+    $("startBtn").disabled = !model;
+
+    if (sourceType === "camera") {
+        sourceType = "none";
+    }
+
+    if (sourceType === "none") {
+        $("placeholder").style.display = "block";
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!keepMessage) {
+        setMessage("Camera stopped.");
     }
 }
 
 // Start webcam
+
 async function startCamera() {
 
     if (!model) {
-        alert("Please wait until AI model loads.");
+        setMessage("Please wait for AI model loading.", true);
         return;
     }
 
-    stopCamera();
+    await stopCamera(true);
+
+    resetStats();
+
+    if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+    ) {
+
+        setMessage(
+            "Camera access is unavailable. Open the website using HTTPS.",
+            true
+        );
+
+        return;
+    }
+
+    setMessage("Requesting camera permission...");
 
     try {
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: "environment"
-            },
-            audio: false
-        });
-
-        video.srcObject = stream;
-        video.style.display = "block";
-        image.style.display = "none";
-        placeholder.style.display = "none";
-
-        video.onloadedmetadata = async () => {
-            await video.play();
-            detecting = true;
-            detectVideo();
-        };
-
-    } catch (error) {
-        alert("Camera access failed. Allow camera permission and use HTTPS or localhost.");
-        console.error(error);
-    }
-}
-
-// Stop webcam
-function stopCamera() {
-
-    detecting = false;
-
-    if (animationId) {
-        cancelAnimationFrame(animationId);
-        animationId = null;
-    }
-
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
-
-    video.srcObject = null;
-    video.style.display = "none";
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (!image.src || image.style.display === "none") {
-        placeholder.style.display = "block";
-    }
-}
-
-// Real-time detection
-async function detectVideo() {
-
-    if (!detecting || !model) return;
-
-    if (video.readyState >= 2) {
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
 
         try {
+
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                },
+                audio: false
+            });
+
+        } catch (firstError) {
+
+            if (
+                firstError.name === "OverconstrainedError" ||
+                firstError.name === "NotFoundError"
+            ) {
+
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+            } else {
+
+                throw firstError;
+
+            }
+        }
+
+        video.srcObject = stream;
+
+        video.style.display = "block";
+        photo.style.display = "none";
+
+        $("placeholder").style.display = "none";
+
+        await new Promise((resolve, reject) => {
+
+            if (video.readyState >= 1) {
+                resolve();
+            } else {
+
+                video.onloadedmetadata = resolve;
+                video.onerror = reject;
+
+            }
+
+        });
+
+        await video.play();
+
+        sourceType = "camera";
+        running = true;
+
+        $("startBtn").disabled = true;
+        $("stopBtn").disabled = false;
+
+        setMessage("Camera started successfully. Detecting objects...");
+
+        detectLoop();
+
+    } catch (error) {
+
+        if (stream) {
+
+            stream.getTracks().forEach(track => track.stop());
+
+            stream = null;
+        }
+
+        video.srcObject = null;
+        video.style.display = "none";
+
+        $("placeholder").style.display = "block";
+
+        $("startBtn").disabled = false;
+
+        let explanation;
+
+        switch (error.name) {
+
+            case "NotAllowedError":
+            case "PermissionDeniedError":
+
+                explanation =
+                    "Camera permission denied. Click the site settings icon beside your website address, open Camera, select Allow, and reload the page. Also enable camera access in Windows Privacy settings.";
+
+                break;
+
+            case "NotFoundError":
+
+                explanation =
+                    "No camera found. Connect a webcam or check your camera connection.";
+
+                break;
+
+            case "NotReadableError":
+
+                explanation =
+                    "Camera is being used by another application. Close Zoom, Teams, or other camera apps.";
+
+                break;
+
+            case "SecurityError":
+
+                explanation =
+                    "Camera requires a secure HTTPS connection.";
+
+                break;
+
+            default:
+
+                explanation =
+                    "Camera error: " +
+                    error.name + " - " + error.message;
+
+        }
+
+        setMessage(explanation, true);
+
+        console.error(error);
+
+    }
+}
+
+// Real-time object detection
+
+async function detectLoop() {
+
+    if (!running || !model) return;
+
+    if (!busy && video.readyState >= 2) {
+
+        busy = true;
+
+        try {
+
             const predictions = await model.detect(video);
 
-            if (!detecting) return;
+            if (running) {
 
-            drawPredictions(predictions);
+                lastPredictions = predictions;
+
+                draw(predictions);
+
+            }
 
         } catch (error) {
+
             console.error(error);
+
+            setMessage(
+                "Detection error: " + error.message,
+                true
+            );
+
+        } finally {
+
+            busy = false;
+
         }
+
     }
 
-    if (detecting) {
-        animationId = requestAnimationFrame(detectVideo);
+    if (running) {
+
+        raf = requestAnimationFrame(detectLoop);
+
     }
 }
 
 // Upload image
-document.getElementById("fileInput").addEventListener("change", async function(event) {
+
+$("fileInput").addEventListener("change", async event => {
 
     const file = event.target.files[0];
 
+    event.target.value = "";
+
     if (!file) return;
 
-    if (!model) {
-        alert("Please wait until the AI model loads.");
-        return;
-    }
-
     if (!file.type.startsWith("image/")) {
-        alert("Please select a valid image.");
+
+        setMessage("Please select a valid image.", true);
+
         return;
     }
 
-    stopCamera();
+    if (!model) {
 
-    const reader = new FileReader();
+        setMessage("Please wait for AI model loading.", true);
 
-    reader.onload = function(e) {
+        return;
+    }
 
-        image.onload = async function() {
+    await stopCamera(true);
 
-            image.style.display = "block";
-            video.style.display = "none";
-            placeholder.style.display = "none";
+    resetStats();
 
-            canvas.width = image.naturalWidth;
-            canvas.height = image.naturalHeight;
+    setMessage("Loading image...");
 
-            modelStatus.innerText = "Analyzing image...";
+    const url = URL.createObjectURL(file);
 
-            try {
-                const predictions = await model.detect(image);
-                drawPredictions(predictions);
-                modelStatus.innerText = "✓ Image detection completed";
-            } catch (error) {
-                modelStatus.innerText = "Detection failed.";
-                console.error(error);
-            }
-        };
+    photo.onload = async () => {
 
-        image.src = e.target.result;
+        sourceType = "image";
+
+        photo.style.display = "block";
+
+        $("placeholder").style.display = "none";
+
+        try {
+
+            setMessage("Analyzing image...");
+
+            const predictions = await model.detect(photo);
+
+            lastPredictions = predictions;
+
+            draw(predictions);
+
+            const count = predictions.filter(
+                p => p.score >= 0.45
+            ).length;
+
+            setMessage(
+                "Image detection completed. " +
+                count + " object(s) detected."
+            );
+
+        } catch (error) {
+
+            setMessage(
+                "Image detection failed: " + error.message,
+                true
+            );
+
+        }
+
+        URL.revokeObjectURL(url);
+
     };
 
-    reader.readAsDataURL(file);
+    photo.onerror = () => {
 
-    // Allow selecting the same image again
-    event.target.value = "";
+        setMessage("Unable to open this image.", true);
+
+        URL.revokeObjectURL(url);
+
+    };
+
+    photo.src = url;
+
 });
 
-// Draw bounding boxes
-function drawPredictions(predictions) {
+// Clear screen
+
+$("clearBtn").addEventListener("click", async () => {
+
+    await stopCamera(true);
+
+    photo.removeAttribute("src");
+
+    photo.style.display = "none";
+
+    sourceType = "none";
+
+    $("placeholder").style.display = "block";
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const colors = ["#00ff88", "#38bdf8", "#facc15", "#fb7185"];
+    resetStats();
 
-    predictions.forEach((prediction, index) => {
+    setMessage("Ready. Start camera or upload an image.");
 
-        if (prediction.score < 0.50) return;
+});
 
-        const [x, y, width, height] = prediction.bbox;
-        const color = colors[index % colors.length];
+// Buttons
 
-        ctx.strokeStyle = color;
-        ctx.lineWidth = Math.max(2, canvas.width / 350);
-        ctx.strokeRect(x, y, width, height);
+$("startBtn").addEventListener("click", startCamera);
 
-        const label = prediction.class + " " +
-            (prediction.score * 100).toFixed(1) + "%";
+$("stopBtn").addEventListener("click", () => {
+    stopCamera();
+});
 
-        const fontSize = Math.max(13, canvas.width / 65);
+// Responsive canvas
 
-        ctx.font = "bold " + fontSize + "px Arial";
+window.addEventListener("resize", () => {
 
-        const textWidth = ctx.measureText(label).width;
+    if (
+        sourceType === "camera" ||
+        sourceType === "image"
+    ) {
 
-        ctx.fillStyle = color;
-        ctx.fillRect(
-            x,
-            Math.max(0, y - fontSize - 10),
-            textWidth + 12,
-            fontSize + 10
-        );
+        draw(lastPredictions);
 
-        ctx.fillStyle = "#020617";
-        ctx.fillText(
-            label,
-            x + 6,
-            Math.max(fontSize, y - 7)
-        );
-
-    });
-
-    updateResults(predictions);
-}
-
-// Update detection results
-function updateResults(predictions) {
-
-    const detected = predictions.filter(p => p.score >= 0.50);
-
-    document.getElementById("objectCount").innerText = detected.length;
-
-    const uniqueObjects = [...new Set(
-        detected.map(p => p.class)
-    )];
-
-    document.getElementById("uniqueCount").innerText =
-        uniqueObjects.length;
-
-    if (detected.length === 0) {
-        results.innerHTML =
-            '<div class="empty">No objects detected.</div>';
-        return;
     }
 
-    results.innerHTML = "";
+});
 
-    detected.forEach(prediction => {
+// Load scripts
 
-        const item = document.createElement("div");
-        item.className = "result";
+function loadScript(url) {
 
-        const name = document.createElement("strong");
-        name.textContent = prediction.class;
+    return new Promise((resolve, reject) => {
 
-        const confidence = document.createElement("span");
-        confidence.textContent =
-            (prediction.score * 100).toFixed(1) + "%";
+        const script = document.createElement("script");
 
-        item.appendChild(name);
-        item.appendChild(confidence);
+        script.src = url;
+        script.async = true;
 
-        results.appendChild(item);
+        script.onload = resolve;
+
+        script.onerror = () => {
+            reject(new Error("Unable to load: " + url));
+        };
+
+        document.head.appendChild(script);
+
     });
+
 }
 
-// Initialize
+// Initialize AI model
+
+async function loadModel() {
+
+    try {
+
+        setMessage("Loading TensorFlow.js...");
+
+        await loadScript(
+            "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"
+        );
+
+        await loadScript(
+            "https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"
+        );
+
+        await tf.ready();
+
+        setMessage("Downloading AI model. Please wait...");
+
+        model = await cocoSsd.load({
+            base: "lite_mobilenet_v2"
+        });
+
+        systemStatus.textContent = "● AI System Online";
+
+        systemStatus.style.color = "#4ade80";
+
+        $("startBtn").disabled = false;
+
+        setMessage(
+            "AI model loaded successfully! Start camera or upload an image."
+        );
+
+    } catch (error) {
+
+        systemStatus.textContent = "● Model Error";
+
+        systemStatus.style.color = "#fca5a5";
+
+        setMessage(
+            "Unable to load AI model. Check internet connection and reload. " +
+            error.message,
+            true
+        );
+
+        console.error(error);
+
+    }
+
+}
+
+// Start application
+
 loadModel();
+
+})();
 
 </script>
 
